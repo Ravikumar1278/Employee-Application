@@ -1,0 +1,10 @@
+package EmployeeManagement;
+
+public class EmployeeApplication {
+
+	public static void main(String[] args){
+		EmployeeDetails EmployeeObj=new EmployeeDetails(null,null,null,null,null);
+		EmployeeObj.userChoice();
+	}
+
+}
