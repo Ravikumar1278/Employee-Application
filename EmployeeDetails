@@ -1,0 +1,305 @@
+package EmployeeManagement;
+
+import java.util.Scanner;
+import java.sql.DriverManager;
+import java.sql.PreparedStatement;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.ArrayList;
+import java.text.ParseException;
+import java.util.regex.Pattern;
+import java.util.regex.Matcher;
+
+class Employee {
+	private String employeeID;
+	private String employeeName;
+	private String employeeEmail;
+	private String employeeDob;
+	private String employeeDoj;
+	
+	Employee(String employeeID,String employeeName,String employeeEmail,String employeeDob,String employeeDoj){
+		this.employeeID=employeeID;
+		this.employeeName=employeeName;
+		this.employeeEmail=employeeEmail;
+		this.employeeDob=employeeDob;
+		this.employeeDoj=employeeDoj;
+		
+	}
+	public String getEmployeeID() {
+		return employeeID;
+	}
+	public String getEmployeeName() {
+		return employeeName;
+	}
+	public String getEmployeeEmail() {
+		return employeeEmail;
+	}
+	public String getEmployeeDob() {
+		return employeeDob;
+	}
+	public String getEmployeeDoj() {
+		return employeeDoj;
+	}
+	public String toString() {
+		return employeeID+" "+employeeName+" "+employeeEmail+" "+employeeDob+" "+employeeDoj+" ";
+	}
+}
+public class EmployeeDetails extends Employee
+{
+	EmployeeDetails(String employeeID,String employeeName,String employeeEmail,String employeeDob,String employeeDoj)
+	{
+			super(employeeID,employeeName,employeeEmail,employeeDob,employeeDoj);
+	}
+
+	Scanner scan1=new Scanner(System.in);
+	Scanner scan=new Scanner(System.in);
+	
+	public String employeeId() {
+		System.out.println(">>Enter employee ID:");
+	    String employeeID=scan.nextLine();
+	    if(employeeID.startsWith("ACE")&&(employeeID.substring(3).length()==4)) {
+	    	return employeeID;
+	    }
+	    else {
+	    	System.out.println("No Special Characters Allowed,EmployeeId Should begin with ACE and followed by 4 digits");
+	    	employeeId();
+	    }
+	    return employeeID;
+	}
+	public String employeeName() {
+		System.out.println(">>Enter Employee Name:");
+		String employeeName=scan.nextLine();
+		Pattern p=Pattern.compile("[^a-zA-Z]",Pattern.CASE_INSENSITIVE);
+		java.util.regex.Matcher m=p.matcher(employeeName);
+		boolean check=m.find();
+		if(check) {
+			System.out.println("Employee Name should contain only alphabets do not include special characters or numerics");
+			employeeName();
+		}
+		else {
+			return employeeName;
+		}
+		return employeeName;
+	}
+	public String employeeEmail() {
+		System.out.println(">>Enter employee Email:");
+		String employeeEmail=scan.nextLine();
+		Pattern p=Pattern.compile("^[A-Za-z0-9]+@+[a-zA-Z]+(.com)$",Pattern.CASE_INSENSITIVE);
+		Matcher m=p.matcher(employeeEmail);
+		boolean check=m.find();
+		if(check) {
+			return employeeEmail;
+		}
+		else {
+			System.out.println("Please enter the valid Email Id, For Example:mail@domain.com \n Domain Name should contain only the Alphabets.");
+			employeeEmail();
+		}
+		return employeeEmail;
+	}
+	public String employeeDob() {
+		System.out.println(">>Enter the employee DOB:");
+		String employeeDob=scan.nextLine();
+		SimpleDateFormat dob=new SimpleDateFormat("dd/MM/yyyy");
+		dob.setLenient(false);
+		try {
+			Date valid=dob.parse(employeeDob);
+			long dateCalculation=System.currentTimeMillis()-valid.getTime();
+			long age=(long)((long)dateCalculation/(1000.0*60*60*24*365));
+			if(age>=18&&age<=60)
+				return employeeDob;
+			else {
+				System.out.println(" Please enter the valid date of birth with dd/mm/yyyy format and the age should between 18 to 60");
+				employeeDob();
+			}
+		 }
+		catch(ParseException error) {
+			System.out.println(" Please enter the valid date of birth with dd/mm/yyyy format and the age should between 18 to 60");
+			employeeDob();
+			}
+		    return employeeDob;
+		}
+	    public String employeeDoj() {
+	    	System.out.println("Enter the employee DOJ");
+	    	String employeeDoj=scan.nextLine();
+	    	SimpleDateFormat doj=new SimpleDateFormat("dd/MM/yyyy");
+	    	doj.setLenient(false);
+	    	try {
+	    		Date valid=doj.parse(employeeDoj);
+	    		long dateCalculation=System.currentTimeMillis()-valid.getTime();
+	    		if(dateCalculation>0) {
+	    			return employeeDoj;
+	    		}
+	    		else {
+	    			System.out.println("Please enter the valid date of birth with dd/MM/yyyy format and Do not have future dates");
+//	    			employeeDoj();
+	    		}
+	    	 }
+	    	 catch(ParseException e) {
+	    		 System.out.println("Please enter the valid date of birth with dd/MM/yyyy format and Do not have future dates");
+//	    		 employeeDoj();
+	    	}
+	    	return employeeDoj;
+	    }
+	public void userChoice()
+	{
+		ArrayList<Employee> list=new ArrayList<Employee>();
+    	int choice;
+    	System.out.println("!!!! Welcome to Employee Management System !!!!");
+    	System.out.println("Welcome to Employee Details ");
+    	do {
+    		
+    		System.out.println("1.Add new Employee Details\n2.Display Employee Details\n3.Update Employee Details\n4.Delete Employee Details\n5.Exit");
+    		System.out.println("Enter your Choice");
+    		choice=scan1.nextInt();
+    		switch(choice) {
+    		case 1:{
+    			System.out.println(" ");
+    			System.out.println(">>You have choosen 1.Add new Employee Details");
+    			System.out.println(" ");
+    			String employeeID=employeeId();
+    			String employeeName=employeeName();
+    			String employeeEmail=employeeEmail();
+    			String employeeDob=employeeDob();
+    			String employeeDoj=employeeDoj();
+    			try {
+    				java.sql.Connection con = DriverManager.getConnection("jdbc:mysql://127.0.0.1:3306/employeeapplication","root","aspire@123");
+    				PreparedStatement ps=con.prepareStatement("INSERT INTO employeedetails(EmployeeID, EmployeeName, EmployeeEmail, EmployeeDOB, EmployeeDOJ) VALUES(?,?,?,?,?)");
+    				ps.setString(1, employeeID);
+    				ps.setString(2, employeeName); 
+    				ps.setString(3, employeeEmail);
+    				ps.setString(4, employeeDob); 
+    				ps.setString(5, employeeDoj);
+    				ps.executeUpdate();   
+    				System.out.println("User Inserted successfully  !!!!");
+    				con.close();
+    				} 
+    			catch(Exception error)
+    				{
+
+    				System.out.println(error);
+    				}
+    			list.add(new Employee(employeeID,employeeName,employeeEmail,employeeDob,employeeDoj));
+    			break;
+    		}
+    		case 2:
+    		{
+    			System.out.println(" ");
+    			System.out.println(">>You have choosen 2.Display Employee Details");
+    			System.out.println(" ");
+    			System.out.println("-->Enter the Employee ID for display the details");
+    			String empid=scan.nextLine();
+
+    			for(Employee s:list)
+    			{
+    				String validate=s.getEmployeeID();
+    				if(validate.equals(empid))
+    				{
+    					System.out.println(" ");
+    					System.out.println(">>Employee Details");
+    					System.out.println(" ");
+    					System.out.println("Employee ID:"+s.getEmployeeID());
+    					try {
+							Thread.sleep(2000);
+						} catch (InterruptedException error) {
+							error.printStackTrace();
+						}
+    					System.out.println("Employee Name:"+s.getEmployeeName());
+    					try {
+							Thread.sleep(2000);
+						} catch (InterruptedException error) {
+							error.printStackTrace();
+						}
+    					System.out.println("Employee Email:"+s.getEmployeeEmail());
+    					try {
+							Thread.sleep(2000);
+						} catch (InterruptedException error) {
+							error.printStackTrace();
+						}
+    					System.out.println("Employee DOB:"+s.getEmployeeDob());
+    					try {
+							Thread.sleep(2000);
+						} catch (InterruptedException error) {
+							error.printStackTrace();
+						}
+    					System.out.println("Employee DOJ:"+s.getEmployeeDoj());
+    				}
+    				else
+    				{
+    					System.out.println("-->Record not found");
+    				}
+    			}
+    			break;
+    		}
+    		case 3:{
+    			System.out.println(" ");
+    			System.out.println(">>You have choosen 3.Update Employee Details");
+    			System.out.println(" ");
+    			System.out.println("Enter Employee ID");
+    			String empid=scan.next();
+    			System.out.println("Add new employee details");
+    			String employeeId=employeeId();
+    			String employeeName=employeeName();
+    			String employeeEmailId=employeeEmail();
+    			String employeeDob=employeeDob();
+    			String employeeDoj=employeeDoj();
+    			try {
+    				
+    			java.sql.Connection con =DriverManager.getConnection("jdbc:mysql://127.0.0.1:3306/employeeapplication","root","aspire@123");
+    			PreparedStatement ps=con.prepareStatement("UPDATE employeedetails SET EmployeeID=?,EmployeeName=?,EmployeeEmail=?,EmployeeDOB=?,EmployeeDOJ=? where EmployeeID=?");
+    			ps.setString(1, employeeId);
+    			ps.setString(2, employeeName);
+    			ps.setString(3, employeeEmailId);
+    			ps.setString(4, employeeDob);
+    			ps.setString(5, employeeDoj);
+    			ps.setString(6, empid);
+    			ps.executeUpdate();
+    			System.out.println("Done");
+    			con.close();
+    			}
+    			catch(Exception e1)
+    			{
+    			System.out.println(e1);
+    			System.out.println("File not found");
+    			}
+    			break;
+    		}
+    		case 4:{
+    			System.out.println(" ");
+    			System.out.println(">>You have choosen 4.Delete Employee Details");
+    			System.out.println(" ");
+    			System.out.println("Enter the Employee ID for deleting:");
+    			String empId1=scan.nextLine();
+    			try {
+    			java.sql.Connection con =DriverManager.getConnection("jdbc:mysql://127.0.0.1:3306/employeeapplication","root","aspire@123");
+    			PreparedStatement ps=con.prepareStatement("DELETE from employeedetails where EmployeeID=?");
+    			ps.setString(1, empId1); 			
+    			ps.executeUpdate();
+    			System.out.println("Employee's Detail is Deleted");
+    			con.close();
+    			}
+    			catch(Exception error)
+    			{
+    			System.out.println(error);
+    			System.out.println("EmployeeID not found");
+    			}
+    			break;
+    		}
+    		case 5: {
+    			System.out.println(" ");
+    			System.out.println("You have choosen 5.Exit");
+    			System.out.println(" ");
+    			System.out.println("Thank you for using Employee management system");
+    			break;
+    		}
+    		default:
+    		{
+    			System.out.println("Kindly choose between the given options");
+    			break;
+    		}
+    		
+    	}
+    }while(choice!=5);
+    
+  }
+	
+}
